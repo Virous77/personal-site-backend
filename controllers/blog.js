@@ -2,16 +2,18 @@ import Article from "../model/article.js";
 import { sendData } from "../utils/function.js";
 
 export const createBlog = async (req, res, next) => {
-  const { title, description, sanitizedHTML, key } = req.body;
+  const { title, description, sanitizedHTML, image, key } = req.body;
 
   if (!title || !description || !sanitizedHTML)
     return next({ status: 404, message: "All fields must be filled!" });
+
   if (!key) return next({ status: 404, message: "Key is missing!" });
 
   const article = new Article({
     title,
     description,
     sanitizedHTML,
+    image,
   });
 
   try {
@@ -71,8 +73,9 @@ export const updateBlog = async (req, res, next) => {
 
       let article = updateBlog;
       article.title = req.body.title;
+      article.image = req.body.image;
       article.description = req.body.description;
-      article.markdown = req.body.markdown;
+      article.sanitizedHTML = req.body.sanitizedHTML;
       article = await article.save();
       return;
     }
