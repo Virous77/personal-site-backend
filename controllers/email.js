@@ -3,7 +3,7 @@ import { sendEmail } from "../utils/sendEmail.js";
 export const sendAutoMatedEmail = async (req, res, next) => {
   const { userName, message, email } = req.body;
 
-  const sent_from = "reetesh.ics@outlook.com";
+  const sent_from = process.env.EMAIL_USER;
   const subject = "New Email from Reetesh-website!";
   const send_to = process.env.SEND_TO;
   const reply_to = "virous77@noreply.com";

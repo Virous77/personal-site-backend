@@ -18,8 +18,8 @@ export const sendEmail = async (
     port: 587,
     secureConnection: false,
     auth: {
-      user: "reetesh.ics@outlook.com",
-      pass: "ReetIcs850635@S",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
     tls: {
       ciphers: "SSLv3",
