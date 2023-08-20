@@ -14,13 +14,15 @@ export const sendEmail = async (
 ) => {
   // Create Email Transporter
   const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
+    host: "smtp-mail.outlook.com",
     port: 587,
+    secureConnection: false,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
     tls: {
+      ciphers: "SSLv3",
       rejectUnauthorized: false,
     },
   });
