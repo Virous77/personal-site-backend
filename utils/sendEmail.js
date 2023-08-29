@@ -1,64 +1,50 @@
 import nodemailer from "nodemailer";
-import hbs from "nodemailer-express-handlebars";
+import Handlebars from "handlebars";
+import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
+dotenv.config();
 
-export const sendEmail = async (
-  subject,
-  send_to,
-  sent_from,
-  reply_to,
-  template,
-  userName,
-  message,
-  email
-) => {
-  // Create Email Transporter
-  const transporter = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com",
-    port: 587,
-    secureConnection: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-      ciphers: "SSLv3",
-      rejectUnauthorized: false,
-    },
-  });
+const createTransporter = async () => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+    return transporter;
+  } catch (err) {
+    throw false;
+  }
+};
 
-  const handlerOptions = {
-    viewEngine: {
-      extName: ".handlebars",
-      partialsDir: path.resolve("./views"),
-      defaultLayout: false,
-    },
-    viewPath: path.resolve("./views"),
-    extName: ".handlebars",
+export const sendEmail = async (email, message, userName) => {
+  const currentModuleDir = path.dirname(new URL(import.meta.url).pathname);
+  const otpTemplate = fs.readFileSync(
+    path.join(currentModuleDir, "../", "template/mail.hbs"),
+    "utf-8"
+  );
+  const template = Handlebars.compile(otpTemplate);
+
+  let mailDetails = {
+    from: process.env.EMAIL,
+    to: process.env.SEND_TO,
+    subject: "New Email | Reetesh",
+    html: template({ email, message, userName }),
   };
 
-  transporter.use("compile", hbs(handlerOptions));
-
-  // Options f0r sending email
-  const options = {
-    from: sent_from,
-    to: send_to,
-    replyTo: reply_to,
-    subject,
-    template,
-    context: {
-      userName,
-      message,
-      email,
-    },
-  };
-
-  // Send Email
-  transporter.sendMail(options, function (err, info) {
-    if (err) {
-      console.log(err);
+  try {
+    let emailTransporter = await createTransporter();
+    const data = await emailTransporter.sendMail(mailDetails);
+    if (data.accepted.length > 0) {
+      console.log("Email sent successfully!");
+      return true;
     } else {
-      console.log(info);
+      return false;
     }
-  });
+  } catch (error) {
+    throw false;
+  }
 };
